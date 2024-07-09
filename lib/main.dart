@@ -1,36 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pb/cubit/counter_cubit.dart';
+import 'package:pb/cubit/counter_state.dart';
 
 void main() {
-  runApp(const PointsCounter());
+  runApp(PointsCounter(initialState: CounterAState()));
 }
 
-class PointsCounter extends StatefulWidget {
-  const PointsCounter({super.key});
+class PointsCounter extends StatelessWidget {
+  final CounterState initialState;
 
+  const PointsCounter({super.key, required this.initialState});
   @override
-  State<PointsCounter> createState() => _PointsCounterState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => CounterCubit(initialState),
+      child: MaterialApp(debugShowCheckedModeBanner: false, home: HomePage()),
+    );
+  }
 }
 
-class _PointsCounterState extends State<PointsCounter> {
-  int teamAPoints = 0;
-
-  int teamBPoints = 0;
-
-  void addOnePoint() {
-    setState(() {});
-    teamAPoints++;
-  }
-
-  void addOnePoint2() {
-    setState(() {});
-    teamBPoints++;
-  }
+class HomePage extends StatelessWidget {
+  HomePage({super.key});
+  int teamApoints = 0;
+  int teamBpoints = 0;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
+    return BlocConsumer<CounterCubit, CounterState>(builder: (context, state) {
+      return Scaffold(
         appBar: AppBar(
           backgroundColor: const Color.fromARGB(255, 251, 151, 2),
           title: const Text('Points Counter'),
@@ -48,14 +46,13 @@ class _PointsCounterState extends State<PointsCounter> {
                           TextStyle(fontSize: 33, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      '$teamAPoints',
+                      '$teamApoints',
                       style: const TextStyle(fontSize: 170),
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        setState(() {
-                          teamAPoints++;
-                        });
+                        BlocProvider.of<CounterCubit>(context)
+                            .increment('A', 1);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange,
@@ -71,9 +68,8 @@ class _PointsCounterState extends State<PointsCounter> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        setState(() {
-                          teamAPoints += 2;
-                        });
+                        BlocProvider.of<CounterCubit>(context)
+                            .increment('A', 2);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange,
@@ -89,9 +85,8 @@ class _PointsCounterState extends State<PointsCounter> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        setState(() {
-                          teamAPoints += 3;
-                        });
+                        BlocProvider.of<CounterCubit>(context)
+                            .increment('A', 3);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange,
@@ -121,14 +116,13 @@ class _PointsCounterState extends State<PointsCounter> {
                           TextStyle(fontSize: 33, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      '$teamBPoints',
+                      '$teamBpoints',
                       style: const TextStyle(fontSize: 170),
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        setState(() {
-                          teamBPoints++;
-                        });
+                        BlocProvider.of<CounterCubit>(context)
+                            .increment('B', 1);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange,
@@ -144,9 +138,8 @@ class _PointsCounterState extends State<PointsCounter> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        setState(() {
-                          teamBPoints += 2;
-                        });
+                        BlocProvider.of<CounterCubit>(context)
+                            .increment('B', 2);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange,
@@ -162,9 +155,8 @@ class _PointsCounterState extends State<PointsCounter> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        setState(() {
-                          teamBPoints += 3;
-                        });
+                        BlocProvider.of<CounterCubit>(context)
+                            .increment('B', 2);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange,
@@ -183,12 +175,7 @@ class _PointsCounterState extends State<PointsCounter> {
               height: 60,
             ),
             ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  teamAPoints = 0;
-                  teamBPoints = 0;
-                });
-              },
+              onPressed: () {},
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
                 minimumSize: const Size(210, 50),
@@ -200,7 +187,13 @@ class _PointsCounterState extends State<PointsCounter> {
             ),
           ],
         ),
-      ),
-    );
+      );
+    }, listener: (context, state) {
+      if (state is CounterAState) {
+        teamApoints = BlocProvider.of<CounterCubit>(context).teamAPoints;
+      } else {
+        teamBpoints = BlocProvider.of<CounterCubit>(context).teamBPoints;
+      }
+    });
   }
 }
